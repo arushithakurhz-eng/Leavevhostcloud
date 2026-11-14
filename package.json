@@ -1,9 +1,9 @@
 {
-  "name": "leavehost-cloud-panel",
-  "private": true,
+  "name": "leavehost-cloud",
   "version": "1.0.0",
-  "type": "module",
-  "scripts": {"dev": "vite --host 0.0.0.0", "build": "vite build", "preview": "vite preview --host 0.0.0.0"},
-  "dependencies": {"@vitejs/plugin-react": "latest", "vite": "latest", "react": "latest", "react-dom": "latest", "lucide-react": "latest"},
-  "devDependencies": {}
+  "private": true,
+  "description": "Leavehost Cloud panel powered by the Falix Public API v2",
+  "scripts": { "dev": "netlify dev" },
+  "dependencies": { "@netlify/functions": "^3.0.0" },
+  "devDependencies": { "netlify-cli": "^19.0.0" }
 }

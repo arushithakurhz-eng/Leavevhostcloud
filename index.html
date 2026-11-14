@@ -1,1 +1,62 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#090d18"/><title>Leavehost Cloud — Game Panel</title></head><body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090d18"><title>Leavehost Cloud</title>
+<style>
+:root{color-scheme:dark;--bg:#090d18;--panel:#111827;--line:#243047;--muted:#93a4bd;--text:#edf3ff;--green:#56e39b;--blue:#7aa7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#172747 0,transparent 38%),var(--bg);color:var(--text);font:15px Inter,system-ui,Arial}
+button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#1b2940;color:var(--text)}button:hover{border-color:var(--blue)}button.primary{background:#2768dc;border-color:#2768dc}button.danger{background:#48212b;border-color:#713141}button:disabled{opacity:.45;cursor:not-allowed}
+.wrap{max-width:1180px;margin:auto;padding:26px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}.brand{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:800}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#67e8b1,#2874ed);display:grid;place-items:center;color:#06111c;font-weight:900}
+.muted{color:var(--muted)}.layout{display:grid;grid-template-columns:260px 1fr;gap:18px}.panel{background:linear-gradient(160deg,#151f32,#101827);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}.server-list{display:grid;gap:9px;margin-top:14px}.server-item{text-align:left;background:#101a2b;width:100%;display:block}.server-item.active{border-color:#6196ff;background:#1a2b49}.server-item small{display:block;color:var(--muted);margin-top:4px}.main{display:grid;gap:16px}.hero{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.hero h1{margin:0 0 6px;font-size:25px}.status{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-size:13px}.dot{width:8px;height:8px;background:currentColor;border-radius:50%}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#0d1625;border:1px solid var(--line);padding:14px;border-radius:12px}.stat strong{display:block;font-size:22px;margin-top:8px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.console{height:260px;overflow:auto;background:#070b12;border:1px solid #202b3c;border-radius:12px;padding:14px;font:12px/1.65 ui-monospace,monospace;white-space:pre-wrap;color:#b8c9df}.command{display:flex;gap:8px;margin-top:10px}.command input,.login input{flex:1;min-width:0;background:#0a1220;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text)}.login{max-width:420px;margin:12vh auto}.login h1{margin-top:0}.hidden{display:none!important}.notice{padding:12px;border-radius:10px;background:#352a16;color:#f5d58a;margin-bottom:12px}.error{color:#ff9caa}.empty{padding:26px;text-align:center;color:var(--muted)}@media(max-width:760px){.wrap{padding:16px}.layout{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.hero{flex-direction:column}.top{align-items:flex-start}.top .muted{display:none}}
+</style></head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand"><div class="logo">L</div><div>Leavehost Cloud<div class="muted" style="font-size:12px;font-weight:500">Minecraft server control panel</div></div></div><div class="muted" id="accountLabel">Falix API v2</div></header>
+
+<section id="loginView" class="panel login">
+<h1>Welcome back</h1><p class="muted">Enter your private panel password to connect your Falix account.</p>
+<form id="loginForm"><input id="password" type="password" placeholder="Panel password" autocomplete="current-password" required style="width:100%;margin:10px 0"><button class="primary" style="width:100%">Unlock panel</button></form>
+<p id="loginError" class="error"></p><p class="muted" style="font-size:12px">Your Falix API key stays on the server and is never sent to the browser.</p>
+</section>
+
+<section id="appView" class="layout hidden">
+<aside class="panel"><div style="display:flex;justify-content:space-between;align-items:center"><b>Your servers</b><button id="refresh" title="Refresh">↻</button></div><div class="muted" style="font-size:12px;margin-top:5px">Connected through Falix</div><div id="serverList" class="server-list"><div class="empty">Loading servers…</div></div><button id="logout" style="width:100%;margin-top:16px">Lock panel</button></aside>
+<main class="main">
+<div id="message" class="notice hidden"></div>
+<section class="panel">
+<div class="hero"><div><h1 id="serverName">Select a server</h1><div id="serverMeta" class="muted">Choose a server from the list</div></div><div class="status"><span class="dot"></span><span id="statusText">Not connected</span></div></div>
+<div class="stats" style="margin-top:20px"><div class="stat"><span class="muted">CPU</span><strong id="cpu">—</strong></div><div class="stat"><span class="muted">Memory</span><strong id="memory">—</strong></div><div class="stat"><span class="muted">Disk</span><strong id="disk">—</strong></div></div>
+<div class="actions"><button class="primary power" data-signal="start">▶ Start</button><button class="power" data-signal="restart">↻ Restart</button><button class="danger power" data-signal="stop">■ Stop</button></div>
+</section>
+<section class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><b>Live console</b><button id="refreshLog">Refresh log</button></div><pre class="console" id="console">Select a server to load its console.</pre><form class="command" id="commandForm"><input id="commandInput" placeholder="Enter console command (e.g. say Hello)" autocomplete="off"><button class="primary">Send</button></form></section>
+<p class="muted" style="font-size:12px">Powered by Falix Public API v2. Server availability, plan limits and permissions are controlled by Falix.</p>
+</main></section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let password=sessionStorage.getItem("lh_password")||"", servers=[], selected=null, refreshTimer;
+function showMessage(s,isError=false){$("message").textContent=s;$("message").classList.remove("hidden");$("message").style.background=isError?"#401d2a":"#352a16";$("message").style.color=isError?"#ffb4c0":"#f5d58a";setTimeout(()=>$("message").classList.add("hidden"),7000)}
+async function api(path,method="GET",body){
+ const r=await fetch("/api/"+path,{method,headers:{"Content-Type":"application/json","X-Panel-Password":password},...(body?{body:JSON.stringify(body)}:{})});
+ const data=await r.json().catch(()=>({error:"Invalid server response"}));
+ if(!r.ok)throw new Error(data?.error?.message||data?.error||`Request failed (${r.status})`);
+ return data.data??data;
+}
+function unlock(){ $("loginView").classList.add("hidden");$("appView").classList.remove("hidden");loadServers();}
+function lock(){password="";sessionStorage.removeItem("lh_password");clearInterval(refreshTimer);$("appView").classList.add("hidden");$("loginView").classList.remove("hidden");}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginError").textContent="";const p=$("password").value;try{await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:p})}).then(async r=>{let d=await r.json();if(!r.ok)throw Error(d.error||"Login failed")});password=p;sessionStorage.setItem("lh_password",p);unlock();}catch(err){$("loginError").textContent=err.message;}});
+$("logout").onclick=lock;
+async function loadServers(){try{const result=await api("servers");servers=Array.isArray(result)?result:(result.servers||[]);renderServers();if(!selected&&servers.length)selectServer(servers[0]);else if(selected)await refreshStatus();}catch(e){showMessage(e.message,true);if(e.message.includes("unlock"))lock();}}
+function idOf(s){return s.id??s.identifier??s.uuid}
+function nameOf(s){return s.name||s.server_name||`Server ${idOf(s)}`}
+function renderServers(){$("serverList").innerHTML="";if(!servers.length){$("serverList").innerHTML='<div class="empty">No servers found on this Falix account.</div>';return;}servers.forEach(s=>{const b=document.createElement("button");b.className="server-item"+(String(idOf(s))===String(selected)?" active":"");b.innerHTML=`<span>${escapeHtml(nameOf(s))}</span><small>ID: ${escapeHtml(String(idOf(s)))}</small>`;b.onclick=()=>selectServer(idOf(s));$("serverList").append(b);});}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+async function selectServer(id){selected=id;renderServers();const s=servers.find(x=>String(idOf(x))===String(id));$("serverName").textContent=s?nameOf(s):`Server ${id}`;$("serverMeta").textContent=`Server ID: ${id}`;await refreshStatus();await refreshLog();}
+async function refreshStatus(){if(!selected)return;try{const d=await api(`servers/${selected}/status`);const st=d.status||d.state||"unknown";$("statusText").textContent=st;$("statusText").style.color=/running|online/i.test(st)?"var(--green)":"#f2c36b";$("cpu").textContent=d.cpu?.current??d.resources?.cpu??d.cpu_percent??"—";$("memory").textContent=d.memory?.current??d.resources?.memory??d.memory_bytes??"—";$("disk").textContent=d.disk?.current??d.resources?.disk??"—";}catch(e){$("statusText").textContent="Unavailable";showMessage(e.message,true);}}
+async function refreshLog(){if(!selected)return;try{const d=await api(`servers/${selected}/log`);const lines=d.lines||d.log||d.content||d.entries||d; $("console").textContent=typeof lines==="string"?lines:JSON.stringify(lines,null,2);$("console").scrollTop=$("console").scrollHeight;}catch(e){$("console").textContent=e.message;}}
+document.querySelectorAll(".power").forEach(b=>b.onclick=async()=>{if(!selected)return showMessage("Select a server first.",true);b.disabled=true;try{await api(`servers/${selected}/power`,"POST",{signal:b.dataset.signal});showMessage(`${b.dataset.signal} signal accepted by Falix.`);setTimeout(refreshStatus,1800);}catch(e){showMessage(e.message,true);}finally{b.disabled=false;}});
+$("commandForm").addEventListener("submit",async e=>{e.preventDefault();const command=$("commandInput").value.trim();if(!selected||!command)return;try{await api(`servers/${selected}/commands`,"POST",{command});$("commandInput").value="";showMessage("Command sent.");setTimeout(refreshLog,1000);}catch(err){showMessage(err.message,true);}});
+$("refresh").onclick=loadServers;$("refreshLog").onclick=refreshLog;
+if(password)unlock();
+</script></body></html>

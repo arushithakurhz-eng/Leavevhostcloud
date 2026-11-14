@@ -1,30 +1,31 @@
-# Leavehost Cloud — Minecraft panel starter
+# Leavehost Cloud
 
-This is a responsive React/Vite control-panel frontend for `leavehost.cloud`, inspired by the reference's server-management workflow. It includes a local demo server, console UI, server overview, file list, player list, resource cards, navigation and localStorage persistence.
+A Netlify-ready Minecraft control panel using the official Falix Public API v2.
 
-## Run locally
-1. Install Node.js 20 or newer.
-2. In this folder run `npm install`.
-3. Run `npm run dev`.
-4. Open the local URL printed by Vite.
+## Deploy (Netlify)
 
-## Deploy the website without managing a VPS
-Build with `npm run build`. Upload the generated `dist/` folder to Cloudflare Pages, Netlify, or Vercel. Point `leavehost.cloud` to that deployment using the provider's domain instructions.
+1. Upload this ZIP to a GitHub repository, or extract it and push the files.
+2. In Netlify, choose **Add new site → Import an existing project** and connect the repository.
+3. Build settings are already in `netlify.toml`; publish directory is `public`.
+4. In **Site configuration → Environment variables**, add:
+   - `FALIX_API_KEY` = your Falix API key (`flx_live_...`)
+   - `LEAVEHOST_ACCESS_PASSWORD` = a long private password for this panel
+5. Redeploy the site, then open it and enter the panel password.
 
-## Important: what is and isn't live
-The included UI runs as a browser demo. Server start/stop, console output, player names, files, and resource figures are simulated and saved locally where applicable. This package does **not** create or run Minecraft worlds, allocate RAM/CPU, or provide a real server IP.
+## Included features
 
-A Minecraft server needs a continuously running machine somewhere. You can avoid owning/managing a VPS by using a managed Minecraft hosting provider or game-server nodes operated by a partner. Your website can remain on serverless/static hosting.
+- Falix account server listing
+- Server status / resource snapshot
+- Start, stop and restart signals
+- Console log and command sending
+- Backend proxy keeps the Falix key out of browser JavaScript
+- Panel password gate
 
-## Connect a real server provider
-For real power controls, console streaming, files and player data, connect a backend to a provider's authenticated API (commonly a Pterodactyl-compatible panel API):
-- Keep provider API tokens on the backend only. Never put them in browser JavaScript.
-- Add authenticated backend endpoints for server list, power actions, websocket console, files, players and resource stats.
-- Store user accounts, ownership and server IDs in a database.
-- Enforce per-user authorization and rate limits on every endpoint.
-- Configure provider webhooks or polling for live status.
+## Important
 
-Suggested architecture:
-`Browser (Cloudflare Pages) -> Auth/API (Supabase Edge Functions or Worker) -> Managed game-host provider API -> Minecraft node`
-
-You must have a provider account and permission to use its API. If you tell us which provider you will use (or whether you already have a Pterodactyl/FeatherPanel panel URL), the integration can be wired to it. Do not share API tokens in chat.
+- The API key must have the relevant Falix API scopes (`servers:read`, `control.power`, `control.console`).
+- Falix may require an interactive verification step for starting a free-plan server. Follow the `action_url` in the API error if returned.
+- This is a real API integration, not a fake server simulator. It cannot create hosting capacity or servers if the Falix account/plan does not allow it.
+- Do not share your API key or panel password. If the key was posted publicly, revoke it and create a new one.
+- The UI is a starter control panel. File manager, billing, customer registration, multi-user roles and automated provisioning are not included yet.
+- API reference: https://client.falixnodes.net/api-docs
